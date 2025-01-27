@@ -29,9 +29,19 @@ class Bild:
             self.headers = {"Authorization": f"Bearer {self.token}"}
         
         self.baseurl = 'https://api.getbild.com'
+        self.content_type = 'application/json;charset=UTF-8'
         self.branch = ''
         self.project = ''
         self.file = ''
+
+    def set_branch(self, branch_id: str):
+        self.branch = branch_id
+
+    def set_project(self, project_id: str):
+        self.project = project_id
+
+    def set_file(self, file_id: str):
+        self.file = file_id
 
     def check_response(self, response):
         '''
@@ -146,12 +156,30 @@ class Bild:
         suffix = f'/projects/{project_id}/files'
         response = requests.get(f"{self.baseurl}{suffix}", headers=self.headers)
         return response.json()
-    
-    def set_branch(self, branch_id: str):
-        self.branch = branch_id
 
-    def set_project(self, project_id: str):
-        self.project = project_id
+    def get_all_users_in_project(self, project_id = None):
+        '''
+        Get all users in a project as a JSON object:
+        '''
+        if project_id is None:
+            project_id = self.project
+        suffix = f'/projects/{project_id}/users'
+        response = requests.get(f"{self.baseurl}{suffix}", headers=self.headers)
+        return response.json()
 
-    def set_file(self, file_id: str):
-        self.file = file_id
+    def generate_stl(self, project_id = None, branch_id = None, file_id = None):
+        '''
+        Generate an STL file for a file.
+        '''
+        if project_id is None:
+            project_id = self.project
+        if branch_id is None:
+            branch_id = self.branch
+        if file_id is None:
+            file_id = self.file
+        suffix = f'/projects/{project_id}/branches/{branch_id}/files/{file_id}/stl'
+        data = {
+            "universalFileFormat": "stl"
+        }
+        response = requests.post(f"{self.baseurl}{suffix}", headers=self.headers, json=data)
+        return response.json()
