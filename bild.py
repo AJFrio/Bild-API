@@ -32,6 +32,7 @@ class Bild:
         self.content_type = 'application/json;charset=UTF-8'
         self.branch = ''
         self.project = ''
+        self.fileVersion = ''
         self.file = ''
 
     def set_branch(self, branch_id: str):
@@ -39,6 +40,9 @@ class Bild:
 
     def set_project(self, project_id: str):
         self.project = project_id
+
+    def set_file_version(self, file_version_id: str):
+        self.fileVersion = file_version_id
 
     def set_file(self, file_id: str):
         self.file = file_id
@@ -167,7 +171,7 @@ class Bild:
         response = requests.get(f"{self.baseurl}{suffix}", headers=self.headers)
         return response.json()
 
-    def generate_stl(self, project_id = None, branch_id = None, file_id = None):
+    def generate_stl(self, project_id = None, branch_id = None, file_id = None, file_version = None):
         '''
         Generate an STL file for a file.
         '''
@@ -177,9 +181,69 @@ class Bild:
             branch_id = self.branch
         if file_id is None:
             file_id = self.file
-        suffix = f'/projects/{project_id}/branches/{branch_id}/files/{file_id}/stl'
+        if file_version is None:
+            file_version = self.fileVersion
+        suffix = f'/projects/{project_id}/branches/{branch_id}/files/{file_id}/universalFormat'
         data = {
+            "fileVersion": file_version,
             "universalFileFormat": "stl"
         }
-        response = requests.post(f"{self.baseurl}{suffix}", headers=self.headers, json=data)
+        response = requests.post(f"{self.baseurl}{suffix}", headers=self.headers, json=data, content_type=f'{self.content_type}: {data}')
         return response.json()
+
+    def generate_step(self, project_id = None, branch_id = None, file_id = None, file_version = None):
+        '''
+        Generate a STEP file for a file.
+        '''
+        if project_id is None:
+            project_id = self.project
+        if branch_id is None:
+            branch_id = self.branch
+        if file_id is None:
+            file_id = self.file
+        if file_version is None:
+            file_version = self.fileVersion
+        suffix = f'/projects/{project_id}/branches/{branch_id}/files/{file_id}/universalFormat'
+        data = {
+            "fileVersion": file_version,
+            "universalFileFormat": "step"
+        }
+        response = requests.post(f"{self.baseurl}{suffix}", headers=self.headers, json=data, content_type=f'{self.content_type}: {data}')
+        return response.json()
+    
+    def get_all_metadata_fields(self):
+        '''
+        Get all metadata fields as a JSON object:
+        '''
+        suffix = '/metadataFields'
+        response = requests.get(f"{self.baseurl}{suffix}", headers=self.headers)
+        return response.json()
+    
+    def get_metadata_from_file(self, project_id = None, branch_id = None, file_id = None):
+        '''
+        Get metadata from a file as a JSON object:
+        '''
+        if project_id is None:
+            project_id = self.project
+        if branch_id is None:
+            branch_id = self.branch
+        if file_id is None:
+            file_id = self.file
+        suffix = f'/projects/{project_id}/branches/{branch_id}/files/{file_id}/metadata'
+        response = requests.get(f"{self.baseurl}{suffix}", headers=self.headers)
+        return response.json()
+    
+    def get_latest_file_version(self, project_id = None, branch_id = None, file_id = None):
+        '''
+        Get the latest file version as a JSON object:
+        '''
+        if project_id is None:
+            project_id = self.project
+        if branch_id is None:
+            branch_id = self.branch
+        if file_id is None:
+            file_id = self.file
+        suffix = f'/projects/{project_id}/branches/{branch_id}/files/{file_id}/latestFileVersion'
+        response = requests.get(f"{self.baseurl}{suffix}", headers=self.headers)
+        return response.json()
+
