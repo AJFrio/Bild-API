@@ -1,5 +1,7 @@
 # Bild API Client
 
+##WORK IN PROGRESS
+
 ## Introduction
 The `Bild` class is a client for interacting with the Bild API. It allows users to manage projects, users, and files within the Bild platform. The client can be used to retrieve information, add users, and generate STL files from project files.
 
