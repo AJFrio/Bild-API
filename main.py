@@ -1,5 +1,10 @@
 import bild
+import dotenv
+import pprint
+
+dotenv.load_dotenv()
 
 b = bild.Bild()
 
-print(b.get_all_users())
+pprint.pprint(b.get_all_users())
+

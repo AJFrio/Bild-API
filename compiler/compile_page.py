@@ -35,7 +35,7 @@ def check_request():
         request_info = soup.find(style=request_info_style)
         print(request_info)
         with open('compiler/request_info.txt', 'a', encoding='utf-8') as file:
-            file.write(request_info)
+            file.write(soup.prettify())
             file.write('\n\n\n')
         file.close()
 
