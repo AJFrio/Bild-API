@@ -4,3 +4,6 @@ The primary objective of this project is to extract functions from [BILD API](ht
 Ideally after data is extracted, between some mix of parsing and AI, create a function to access that end point. That would also allow it to make the function in whatever language we want. After all the functions have been created, write it to a file and and run tests to make sure everything works as expected.
 
 It can extract the name of the endpoint, url and descrpition, but cannot quite get the response or requred fields in an easy to read format. 
+
+## Update 1
+It can sucessfully compile GET requests into python.

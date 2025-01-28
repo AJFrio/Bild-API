@@ -8,6 +8,7 @@ import time
 import pprint
 from bs4 import BeautifulSoup
 import os
+import json
 
 dropdowns = 'sl-tree'
 dropdowns_class = 'foo__PxTree-module__sltree'
@@ -36,7 +37,11 @@ def select_dropdowns():
 
     # Find all divs with the specified class and click them
     divs_to_click = driver.find_elements(By.CLASS_NAME, specific_page)
-    for div in divs_to_click[:5]:
+    last_banner = ''
+    with open('compiler/data.json', 'w', encoding='utf-8') as file:
+        file.write('"get_urls":[\n')
+        file.close()
+    for div in divs_to_click:
         div.click()
         time.sleep(.5)  # Optional: wait a bit between clicks if needed
         
@@ -52,25 +57,46 @@ def select_dropdowns():
                     "return Array.from(document.querySelectorAll('div')).find(div => div.style.cssText.includes(arguments[0]));",
                     top_banner_style
                 )
-                top_banner_text = top_banner_div.text.replace('\n', '##').replace('Change Base URL Selection', '')
-                description_div = driver.find_element(By.CLASS_NAME, description_p_class)
-                description_text = description_div.text
-                try:
-                    request_body_div = driver.execute_script(
-                        "return Array.from(document.querySelectorAll('div')).find(div => div.style.cssText.includes(arguments[0]));",
-                        request_body_style
-                    )
-                    request_body_text = request_body_div.text
-                    print(request_body_text)
-                except:
-                    request_body_text = ''
-                with open('compiler/dashboard.txt', 'a', encoding='utf-8') as file:
-                    file.write(f'{dashboard_text}##{top_banner_text}##{description_text}##{request_body_text}\n')
-                    file.close()
+                if top_banner_div != last_banner:
+                    top_banner_text = top_banner_div.text.replace('\n', '##').replace('Change Base URL Selection', '')
+                    description_div = driver.find_element(By.CLASS_NAME, description_p_class)
+                    description_text = description_div.text
+                    if top_banner_text.split('##')[0] == 'GET':
+                        try:
+                            request_body_div = driver.execute_script(
+                                "return Array.from(document.querySelectorAll('div')).find(div => div.style.cssText.includes(arguments[0]));",
+                                request_body_style
+                            )
+                            request_body_text = request_body_div.text
+                            print(request_body_text)
+                        except:
+                            request_body_text = ''
+                        
+                        # Create a dictionary for the JSON object
+                        data = {
+                            "name": dashboard_text,
+                            "request_type": top_banner_text.split('##')[0],
+                            "url": top_banner_text.split('##')[1],
+                            "description": description_text,
+                        }
+                        
+                        # Append the JSON object to the data.json file, gotta keep it persistant in case of silly goofy situations :)
+                        with open('compiler/data.json', 'a', encoding='utf-8') as file:
+                            
+                            json.dump(data, file)
+                            file.write(',\n') 
+                    last_banner = top_banner_div
+                else:
+                    print('already done')
             else:
                 print('Element with specified style not found')
         except Exception as e:
             print(f'Error: {e}')
+    
+    with open('compiler/data.json', 'a', encoding='utf-8') as file:
+        file.write(']')
+        file.close()
+    pprint.pprint(data)
 
     driver.quit()
 
