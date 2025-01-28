@@ -7,7 +7,6 @@ from selenium.webdriver.common.by import By
 import time
 import pprint
 from bs4 import BeautifulSoup
-from openai import OpenAI
 import os
 
 dropdowns = 'sl-tree'
@@ -117,8 +116,6 @@ def check_request():
         driver.get(url)
         request_page = driver.page_source
         soup = BeautifulSoup(request_page, 'html.parser')
-        request_info = soup.find(style=request_info_style)
-        print(request_info)
         with open('compiler/request_info.txt', 'a', encoding='utf-8') as file:
             file.write(soup.prettify())
             file.write('\n\n\n')
